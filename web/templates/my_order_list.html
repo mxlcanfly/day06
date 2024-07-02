@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load permission %}
+
+{% block css %}
+    <style>
+        .top-message-error {
+            position: fixed;
+            left: 0;
+            right: 0;
+            width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            top: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {% if messages %}
+        <div class="top-message-error">
+                {% for obj in messages %}
+                     <div class="alert alert-{{ obj.level_tag }}">
+                        {{ obj.message }}
+                     </div>
+                {% endfor %}
+        </div>
+    {% endif %}
+
+    <div style="margin-bottom: 5px" class="clearfix">
+        <a class='btn btn-success' href="{% url 'my_order_add' %}" >
+            <span class='glyphicon glyphicon-plus-sign'></span> 创建订单
+        </a>
+    </div>
+
+    <div class="bs-example" data-example-id="bordered-table">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>订单号</th>
+              <th>视频地址</th>
+              <th>数量</th>
+              <th>价格</th>
+              <th>原播放量</th>
+              <th>创建时间</th>
+              <th>状态</th>
+              <th>操作</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in pager.queryset %}
+            <tr>
+              <td>{{ row.oid }}</td>
+              <td>{{ row.url }}</td>
+              <td>{{ row.count }}</td>
+              <td>{{ row.price }} ({{ row.real_price }})</td>
+              <td>{{ row.old_view_count }}</td>
+              <td>{{ row.create_date | date:'Y-m-d H:i:s' }}</td>
+              <td>{{ row.get_status_display }}</td>
+              <td>
+                  {% if row.status == 1 %}
+                      <a class="btn btn-xs btn-danger" href="{% url 'my_order_cancel' pk=row.id %}">撤单</a>
+                  {% endif %}
+              </td>
+            {% endfor %}
+
+          </tbody>
+        </table>
+    </div>
+
+    <ul class="pagination">
+        {{ pager.html }}
+    </ul>
+
+    {% include 'include/delete_modal.html' %}
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        setTimeout(function () {
+            $(".top-message-error").addClass('hide');
+        }, 5000)
+    </script>
+{% endblock %}

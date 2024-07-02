@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href={% static 'plugins/bootstrap/css/bootstrap.css' %}>
+
+    <style>
+        .box {
+            width: 480px;
+            border: 1px solid #dddddd;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 100px;
+            margin-bottom: 100px;
+
+            padding-right: 40px;
+            padding-left: 40px;
+            padding-bottom: 30px;
+
+            box-shadow: 5px 10px 10px rgb(0 0 0  / 5%);
+        }
+        .error_message {
+            color: red; position: absolute;
+        }
+
+        #loginBtn{
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2 style="text-align: center">短信登陆</h2>
+    <form method="post" id="smsForm">
+        {% csrf_token %}
+
+         {% for field in form %}
+             {% if field.name == 'code' %}
+                <div class="form-group" >
+                    <label>短信验证码</label>
+                    <div class="row">
+                        <div class="col-xs-7">
+                            {{ field }}
+                            <span class="error_message">{{ field.errors.0 }}</span>
+                        </div>
+                        <div class="col-xs-5">
+                            <input id="sendBtn" type="button" class="btn btn-default" value="点击发送验证码">
+                        </div>
+                    </div>
+
+                </div>
+             {% else %}
+                 <div class="form-group" style="position: relative;margin-bottom: 25px">
+                     <label>{{ field.label }}</label>
+                        {{ field }}
+                     <span class="error_message">{{ field.errors.0 }}</span>
+                 </div>
+             {% endif %}
+        {% endfor %}
+
+        <button type="button" class="btn btn-primary" id="loginBtn">登 录</button>
+        <a href="{% url 'login' %}" style="float: right">用户名登录</a>
+    </form>
+</div>
+
+<script src="{% static 'js/jquery3.7.1.js' %}"></script>
+<script src="{% static 'js/csrf.js' %}"></script>
+<script>
+    $(function (){
+        bindSendSmsEvent();
+
+        bindLoginEvent();
+    })
+
+    function bindLoginEvent() {
+        $("#loginBtn").click(function () {
+
+            $('.error_message').empty();
+
+            $.ajax({
+                url:"{% url 'sms_login' %}",
+                type:"POST",
+                data:$("#smsForm").serialize(),
+                dataType:'JSON', //传入过来的是json格式的数据，这里要获取字典对象
+                success: function (res) {
+                    {#console.log(res)#}
+
+                    if(res.status){
+                        location.href = res.data
+                    } else {
+                        $.each(res.detail, function (k, v) {
+                            $('#id_'+ k).next().text(v[0]);
+                        })
+                    }
+                }
+            })
+        })
+    }
+
+    function bindSendSmsEvent() {
+        $('#sendBtn').click(function () {
+
+            //清楚所有的错误
+            $('.error_message').empty();
+
+            $.ajax({
+                url:"{% url "sms_send" %}",
+                type:"POST",
+                data:{
+                    mobile: $('#id_mobile').val(),
+                    role: $('#id_role').val()
+                },
+                dataType:'JSON', //传入过来的是json格式的数据，这里要获取字典对象
+                success: function (res) {
+                    {#console.log(res)#}
+
+                    if(res.status){
+                        sendMessageTime();
+                    } else {
+                        $.each(res.detail, function (k, v) {
+                            $('#id_'+ k).next().text(v[0]);
+                        })
+                    }
+                }
+            })
+
+
+        })
+    }
+
+    function sendMessageTime() {
+        var $sendBtn = $('#sendBtn')
+
+        $sendBtn.prop('disabled',true);
+
+        var time = 60
+        var send = setInterval(function () {
+            $sendBtn.val(time + '秒重新发送');
+            time = time - 1
+
+            if(time < 0){
+                clearInterval(send);
+                $sendBtn.prop('disabled',false);
+                $sendBtn.val('点击发送验证码');
+            }
+        },1000)
+    }
+</script>
+
+</body>
+</html>

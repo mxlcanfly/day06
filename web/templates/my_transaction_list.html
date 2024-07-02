@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load permission %}
+{% load color %}
+
+{% block css %}
+    <style>
+         .error-message {
+            color:red;
+            position: absolute;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {% include 'include/search_group.html' %}
+
+    <div style="margin-bottom: 5px" class="clearfix">
+        {% include 'include/search_modal.html' %}
+    </div>
+
+
+    <div class="bs-example" data-example-id="bordered-table">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>类型</th>
+              <th>金额</th>
+              <th>订单号</th>
+              <th>时间</th>
+              <th>其他</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in pager.queryset %}
+            <tr row-id="{{ row.id }}">
+              <td>{{ row.id }}</td>
+              <td>
+                  <span class="btn btn-xs btn-{{ row.charge_type|color }}">{{ row.get_charge_type_display }}</span>
+              </td>
+              <td>
+                  {% if row.charge_type == 1 or  row.charge_type == 5 %}
+                      +{{ row.amount }}
+                  {% elif  row.charge_type == 2 or  row.charge_type == 3 %}
+                      -{{ row.amount }}
+                  {% endif %}
+              </td>
+              <td>
+                  {% if row.order_oid %}
+                      {{ row.order_oid }}
+                  {% else %}
+                      -
+                  {% endif %}
+              </td>
+              <td>{{ row.create_date }}</td>
+              <td>
+                  {% if row.memo %}
+                      {{ row.memo }}
+                  {% else %}
+                      -
+                  {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">我的订单</h4>
+             </div>
+             <div class="modal-body">
+              <form class="form-horizontal" id="addForm">
+                  {% csrf_token %}
+                  {% for field in form %}
+                  <div class="form-group" style="position: relative; margin-bottom: 25px">
+                    <label class="col-sm-2 control-label">{{ field.label }}</label>
+                    <div class="col-sm-10">
+                        {{field}}
+                        <span class="error-message" >{{ field.errors.0 }}</span>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </form>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button type="button" class="btn btn-primary btnAddSubmit">保 存</button>
+             </div>
+         </div>
+       </div>
+    </div>
+
+    <ul class="pagination">
+        {{ pager.html }}
+    </ul>
+
+    {% include 'include/delete_modal.html' %}
+
+{% endblock %}
+

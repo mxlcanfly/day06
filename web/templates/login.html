@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href={% static 'plugins/bootstrap/css/bootstrap.css' %}>
+
+    <style>
+        .box {
+            width: 480px;
+            border: 1px solid #dddddd;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 100px;
+            margin-bottom: 100px;
+
+            padding-right: 40px;
+            padding-left: 40px;
+            padding-bottom: 30px;
+
+            box-shadow: 5px 10px 10px rgb(0 0 0  / 5%);
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2 style="text-align: center">用户名登录</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group" style="position: relative;margin-bottom: 25px">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                <span style="color: red;position: absolute">{{ field.errors.0 }}</span>
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">登 录</button>
+
+        <a href="{% url 'sms_login' %}" style="float: right">短信登陆</a>
+    </form>
+</div>
+
+
+
+
+</body>
+</html>
