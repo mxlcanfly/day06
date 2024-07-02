@@ -228,3 +228,8 @@ MESSAGE_DANGER_TAG = 50
 MESSAGE_TAGS = {
     MESSAGE_DANGER_TAG: "danger"
 }
+
+try:
+    from .local_settings import *
+except Exception:
+    pass
