@@ -16,5 +16,4 @@ def m_menu(request):
             if child['name'] == request.m_user.menu_name:
                 child['class'] = 'active'
 
-    return {'menu_list'
-            :user_menu_list}
+    return {'menu_list':user_menu_list}
