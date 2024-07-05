@@ -75,6 +75,16 @@ WSGI_APPLICATION = 'day06.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'day06',
+        'USER': 'root',
+        "PASSWORD": '668034ky',
+        'HOST': '127.0.0.1',
+        'POST': 3306,
+    }
+}
 
 
 # Password validation
@@ -221,5 +231,5 @@ MESSAGE_TAGS = {
 
 try:
     from .local_settings import *
-except ImportError:
+except Exception:
     pass
